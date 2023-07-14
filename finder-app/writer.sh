@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 usage="Usage: $0 /path/to/file text_to_write"
 
@@ -22,10 +22,11 @@ writestr=$2
 mkdir -p `dirname $writefile`
 echo $writestr > $writefile
 
-if [ -e $writefile ]
+if [ -e $writefile ];
 then
     echo "$writefile sucessfully created."
-    if [ `cat $writefile` == $writestr ]
+    writefile_contents=`cat $writefile`
+    if [ $writefile_contents == $writestr ];
     then
         echo "$writestr successfully written to $writefile"
     else

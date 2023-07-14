@@ -2,12 +2,12 @@
 
 usage="Usage: $0 /path/to/dir text_to_search"
 
-if [[ ( $@ == "--help") || ($@ == "-h") ]] then
-    echo $usage
-    echo "Flags:"
-    printf "\t--help, -h\t\tHelp.\n"
-    exit 0 
-fi
+#if [[ ( $@ == "--help") || ($@ == "-h") ]] then
+#    echo $usage
+#    echo "Flags:"
+#    printf "\t--help, -h\t\tHelp.\n"
+#    exit 0 
+#fi
 
 if [[ $# -ne 2 ]] then
     echo "$0 needs exactly 2 arguments, you provided $#"

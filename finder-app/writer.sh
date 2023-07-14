@@ -13,10 +13,10 @@ if [[ $# -ne 2 ]] then
     echo "$0 needs exactly 2 arguments, you provided $#"
     echo $usage
     exit 1
-else
-    writefile=$1
-    writestr=$2
 fi
+
+writefile=$1
+writestr=$2
 
 mkdir -p `dirname $writefile`
 echo $writestr > $writefile

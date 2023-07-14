@@ -9,7 +9,7 @@ usage="Usage: $0 /path/to/file text_to_write"
 #    exit 0 
 #fi
 
-if [[ $# -ne 2 ]] 
+if [ $# -ne 2 ]
 then
     echo "$0 needs exactly 2 arguments, you provided $#"
     echo $usage
@@ -22,10 +22,10 @@ writestr=$2
 mkdir -p `dirname $writefile`
 echo $writestr > $writefile
 
-if [[ -e $writefile ]] 
+if [ -e $writefile ]
 then
     echo "$writefile sucessfully created."
-    if [[ `cat $writefile` == $writestr ]] 
+    if [ `cat $writefile` == $writestr ]
     then
         echo "$writestr successfully written to $writefile"
     else

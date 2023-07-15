@@ -36,5 +36,7 @@ int main(int argc, char* argv[]) {
     }
     syslog(LOG_DEBUG, "Sucessfully wrote %s to %s", writestr, writefile);
     closelog();
+
+    close(fd);
     return 0;
 }

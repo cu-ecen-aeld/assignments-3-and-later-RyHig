@@ -1,0 +1,4 @@
+Using built-in specs.
+COLLECT_GCC=aarch64-none-linux-gnu-gcc
+COLLECT_LTO_WRAPPER=/home/ryhig/.local/share/gcc-arm-11.2-2022.02-x86_64-aarch64-none-linux-gnu/bin/../libexec/gcc/aarch64-none-linux-gnu/11.2.1/lto-wrapper
+/home/ryhig/.local/share/gcc-arm-11.2-2022.02-x86_64-aarch64-none-linux-gnu/bin/../aarch64-none-linux-gnu/libc

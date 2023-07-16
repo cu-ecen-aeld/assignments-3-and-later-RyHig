@@ -16,7 +16,12 @@ bool do_system(const char *cmd)
  *   and return a boolean true if the system() call completed with success
  *   or false() if it returned a failure
 */
-
+    int ret;
+    fflush(stdout);
+    ret = system(cmd);
+    if(ret == -1) {
+        return false;
+    }
     return true;
 }
 
@@ -47,8 +52,6 @@ bool do_exec(int count, ...)
     command[count] = NULL;
     // this line is to avoid a compile warning before your implementation is complete
     // and may be removed
-    command[count] = command[count];
-
 /*
  * TODO:
  *   Execute a system command by calling fork, execv(),
@@ -58,7 +61,34 @@ bool do_exec(int count, ...)
  *   as second argument to the execv() command.
  *
 */
-
+    int ret, status;
+    fflush(stdout);
+    pid_t childpid = fork();
+    switch(childpid) {
+        case -1:
+            return false;
+        case 0:
+            ret = execv(command[0], command);
+            if (ret != 0) {
+                syslog(LOG_DEBUG, "RET %d", ret);
+            }
+            _exit(EXIT_FAILURE);
+        default:
+            if (waitpid(childpid, &status, 0) == -1) {
+                syslog(LOG_DEBUG, "WAITPID %d", status);
+                return false;
+            }
+            else if (WIFEXITED(status)) {
+                if (status == 0) {
+                    syslog(LOG_DEBUG, "RETURN SUCCESS %d", status);
+                    return true;
+                }
+                else {
+                    syslog(LOG_DEBUG, "RETURN FAILURE %d", status);
+                    return false;
+                }
+            }
+    }
     va_end(args);
 
     return true;
@@ -82,7 +112,6 @@ bool do_exec_redirect(const char *outputfile, int count, ...)
     command[count] = NULL;
     // this line is to avoid a compile warning before your implementation is complete
     // and may be removed
-    command[count] = command[count];
 
 
 /*
@@ -92,8 +121,44 @@ bool do_exec_redirect(const char *outputfile, int count, ...)
  *   The rest of the behaviour is same as do_exec()
  *
 */
-
+    pid_t childpid;
+    int fd = open(outputfile, O_WRONLY|O_CREAT|O_TRUNC, 0644);
+    int ret, status;
+    if (fd < 0) {
+        return false;
+    }
+    fflush(stdout);
+    switch (childpid = fork()) {
+        case -1:
+            return false;
+        case 0:
+            if (dup2(fd, 1) < 0) {
+                return false;
+            }
+            close(fd);
+            ret = execv(command[0], command);
+            if (ret != 0) {
+                return false;
+            }
+            exit(EXIT_FAILURE);
+        default:
+            if (waitpid(childpid, &status, 0) == -1) {
+                syslog(LOG_DEBUG, "WAITPID %d", status);
+                return false;
+            }
+            else if (WIFEXITED(status)) {
+                if (status == 0) {
+                    syslog(LOG_DEBUG, "RETURN SUCCESS %d", status);
+                    return true;
+                }
+                else {
+                    syslog(LOG_DEBUG, "RETURN FAILURE %d", status);
+                    return false;
+                }
+            }
+            fsync(fd);
+            close(fd);
+    }
     va_end(args);
-
     return true;
 }

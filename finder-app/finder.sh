@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 usage="Usage: $0 /path/to/dir text_to_search"
 

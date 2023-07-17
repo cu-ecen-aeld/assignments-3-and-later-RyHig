@@ -35,7 +35,7 @@ if [ ! -d "${OUTDIR}/linux-stable" ]; then
 fi
 if [ ! -e ${OUTDIR}/linux-stable/arch/${ARCH}/boot/Image ]; then
     if [ ! -d "${OUTDIR}/ptxdist-vetero" ]; then
-        echo "PUTTING dtc-multiple-definition.patch in $OUTDIR/linux-stable"
+        echo "PUTTING dtc-multiple-definition.patch in ${OUTDIR}/ptxdist-vetero"
         git clone ${KERNEL_PATCH_REPO} --depth 1 --single-branch --branch master
     fi
     cd linux-stable
@@ -49,7 +49,6 @@ if [ ! -e ${OUTDIR}/linux-stable/arch/${ARCH}/boot/Image ]; then
     make ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} defconfig
     echo "creating image"
     make -j16 ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} %.dtb || RESULT=$?
-    echo $RESULT
     if [ RESULT -eq 0 ]; then
         echo "Success no need to patch"
     else

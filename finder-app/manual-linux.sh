@@ -7,7 +7,8 @@ set -u
 
 OUTDIR=/tmp/aeld
 KERNEL_REPO=git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git
-KERNEL_PATCH=https://raw.githubusercontent.com/bwalle/ptxdist-vetero/f1332461242e3245a47b4685bc02153160c0a1dd/patches/linux-5.0/dtc-multiple-definition.patch
+KERNEL_PATCH_REPO=https://github.com/bwalle/ptxdist-vetero.git
+KERNEL_PATCH_PATH="${OUTDIR}/ptxdist-vetero/patches/linux-5.0"
 KERNEL_VERSION=v5.1.10
 BUSYBOX_VERSION=1_33_1
 FINDER_APP_DIR=$(realpath $(dirname $0))
@@ -33,13 +34,13 @@ if [ ! -d "${OUTDIR}/linux-stable" ]; then
 	git clone ${KERNEL_REPO} --depth 1 --single-branch --branch ${KERNEL_VERSION}
 fi
 if [ ! -e ${OUTDIR}/linux-stable/arch/${ARCH}/boot/Image ]; then
+    if [ ! -d "${OUTDIR}/ptxdist-vetero" ]; then
+        echo "PUTTING dtc-multiple-definition.patch in $OUTDIR/linux-stable"
+        git clone ${KERNEL_PATCH_REPO} --depth 1 --single-branch --branch master
+    fi
     cd linux-stable
     echo "Checking out version ${KERNEL_VERSION}"
     git checkout ${KERNEL_VERSION}
-    if [ ! -f $OUTDIR/linux-stable/dtc-multiple-definition.patch ]; then
-        echo "PUTTING dtc-multiple-definition.patch in $OUTDIR/linux-stable"
-        curl -o dtc-multiple-definition.patch -L $KERNEL_PATCH
-    fi
     # TODO: Add your kernel build steps here
     echo "mrproper starting"
     make ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} mrproper
@@ -52,7 +53,7 @@ if [ ! -e ${OUTDIR}/linux-stable/arch/${ARCH}/boot/Image ]; then
     if [ RESULT -eq 0 ]; then
         echo "Success no need to patch"
     else
-        git apply dtc-multiple-definition.patch
+        git apply ${KERNEL_PATCH_PATH}/dtc-multiple-definition.patch
     fi
     make -j16 ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} all
 fi

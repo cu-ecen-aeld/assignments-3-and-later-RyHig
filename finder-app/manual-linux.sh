@@ -34,10 +34,10 @@ if [ ! -d "${OUTDIR}/linux-stable" ]; then
 	git clone ${KERNEL_REPO} --depth 1 --single-branch --branch ${KERNEL_VERSION}
 fi
 if [ ! -e ${OUTDIR}/linux-stable/arch/${ARCH}/boot/Image ]; then
-    if [ ! -d "${OUTDIR}/ptxdist-vetero" ]; then
-        echo "PUTTING dtc-multiple-definition.patch in ${OUTDIR}/ptxdist-vetero"
-        git clone ${KERNEL_PATCH_REPO} --depth 1 --single-branch --branch master
-    fi
+    #if [ ! -d "${OUTDIR}/ptxdist-vetero" ]; then
+    #    echo "PUTTING dtc-multiple-definition.patch in ${OUTDIR}/ptxdist-vetero"
+    #    git clone ${KERNEL_PATCH_REPO} --depth 1 --single-branch --branch master
+    #fi
     cd linux-stable
     echo "Checking out version ${KERNEL_VERSION}"
     git checkout ${KERNEL_VERSION}
@@ -48,12 +48,12 @@ if [ ! -e ${OUTDIR}/linux-stable/arch/${ARCH}/boot/Image ]; then
     echo "defconfig"
     make ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} defconfig
     echo "creating image"
-    make -j16 ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} %.dtb || RESULT=$?
-    if [ RESULT -eq 0 ]; then
-        echo "Success no need to patch"
-    else
-        git apply ${KERNEL_PATCH_PATH}/dtc-multiple-definition.patch
-    fi
+    #make -j16 ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} %.dtb || RESULT=$?
+    #if [ RESULT -eq 0 ]; then
+    #    echo "Success no need to patch"
+    #else
+    #    git apply ${KERNEL_PATCH_PATH}/dtc-multiple-definition.patch
+    #fi
     make -j16 ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} all
 fi
 

@@ -8,8 +8,14 @@ set -u
 NUMFILES=10
 WRITESTR=AELD_IS_FUN
 WRITEDIR=/tmp/aeld-data
-username=$(cat conf/username.txt)
 
+if [ -e conf ]; then
+    CONF_DIR=conf
+else 
+    CONF_DIR=/etc/finder-app/conf
+fi
+
+username=$(cat $CONF_DIR/username.txt)
 cd `dirname $0`
 
 if [ $# -lt 3 ]
@@ -34,7 +40,7 @@ echo "Writing ${NUMFILES} files containing string ${WRITESTR} to ${WRITEDIR}"
 rm -rf "${WRITEDIR}"
 
 # create $WRITEDIR if not assignment1
-assignment=`cat ../conf/assignment.txt`
+assignment=`cat $CONF_DIR/assignment.txt`
 
 if [ $assignment != 'assignment1' ]
 then

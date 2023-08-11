@@ -1,4 +1,3 @@
-#include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/wait.h>
 #include <netdb.h>
@@ -10,6 +9,7 @@
 #include <signal.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <arpa/inet.h>
 
 #define PORT "9000"
 #define BACKLOG 10
@@ -30,10 +30,10 @@ static void signal_handler(int signal_number) {
 int send_and_receive(int sockfd) {
     int buf_size = 1024;
     int new_fd, byte_count, byte_total = 0;
-    struct sockaddr_storage their_addr;
+    struct sockaddr_in their_addr;
     socklen_t sin = sizeof their_addr;
     char *buf = malloc(buf_size * sizeof(char));
-
+    char ip_str[INET_ADDRSTRLEN];
     FILE *file_to_write = fopen(FILE_NAME, "a+");
     if (!file_to_write) {
         int err_val = errno;
@@ -64,6 +64,9 @@ int send_and_receive(int sockfd) {
                 return -1;
             }
         }
+        inet_ntop(AF_INET, &their_addr.sin_addr, ip_str, INET_ADDRSTRLEN);
+        syslog(LOG_DEBUG, "Accepted connection to %s\n", ip_str);
+
         byte_count = recv(new_fd, buf, buf_size, 0);
         //printf("%d\t%d\n", byte_count, buf_size);
         while(byte_count == buf_size) {
@@ -88,6 +91,8 @@ int send_and_receive(int sockfd) {
         }
         fread(buf, sizeof buf[0], byte_total, file_to_write);
         byte_count = send(new_fd, buf, byte_total, 0);
+        shutdown(new_fd, 2);
+        syslog(LOG_DEBUG, "Closed connection to %s\n", ip_str);
         //   }
     //    }
     }

@@ -68,12 +68,10 @@ int send_and_receive(int sockfd) {
         syslog(LOG_DEBUG, "Accepted connection to %s\n", ip_str);
 
         byte_count = recv(new_fd, buf, buf_size, 0);
-        //printf("%d\t%d\n", byte_count, buf_size);
         while(byte_count == buf_size) {
             fwrite(buf, sizeof buf[0], byte_count, file_to_write);
             byte_total += byte_count;
             byte_count = recv(new_fd, buf, buf_size, 0);
-            //printf("%d\t%d\n", byte_count, buf_size);
         }
         byte_total += byte_count;
         fwrite(buf, sizeof buf[0], byte_count, file_to_write);
@@ -93,8 +91,6 @@ int send_and_receive(int sockfd) {
         byte_count = send(new_fd, buf, byte_total, 0);
         shutdown(new_fd, 2);
         syslog(LOG_DEBUG, "Closed connection to %s\n", ip_str);
-        //   }
-    //    }
     }
     while(!caught_sigint && !caught_sigterm);
     syslog(LOG_DEBUG, "Caught signal, exiting");
@@ -111,17 +107,6 @@ int send_and_receive(int sockfd) {
     shutdown(new_fd, 2);
     return 0;
 }
-
-//int resize_array(char* arr, int old_size, int new_size) {
-//    char* new_arr = malloc( new_size);
-//    for (int i = 0; i < old_size; i++) {
-//        new_arr[i] = arr[i];
-//    }
-//    free(arr);
-//    arr = new_arr;
-//
-//    return new_size;
-//}
 
 int main(int argc, char* argv[]) {
     int sockfd; 
@@ -176,7 +161,7 @@ int main(int argc, char* argv[]) {
     if (setsockopt(sockfd,SOL_SOCKET,SO_REUSEADDR,&yes,sizeof yes) == -1) { 
         int err_val = errno;
         if (errno != EINTR) {
-            syslog(LOG_ERR, "Error creating a socket file descriptor: %s", strerror(err_val));
+            syslog(LOG_ERR, "Error adjusting socket file descriptor options: %s", strerror(err_val));
             freeaddrinfo(res);
             closelog();
             return -1;

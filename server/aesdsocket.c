@@ -340,6 +340,8 @@ int main(int argc, char* argv[]) {
                     return -1;
                 }
             default:
+                closelog();
+                return 0;
         }
     }
     else {

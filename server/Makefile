@@ -1,5 +1,5 @@
-CC=$(CROSS_COMPILE)gcc
-CFLAGS= -g -Wall -Werror
+CC ?= $(CROSS_COMPILE)gcc
+CFLAGS ?= -g -Wall -Werror
 
 default : all
 

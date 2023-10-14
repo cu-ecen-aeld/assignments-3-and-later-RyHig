@@ -48,6 +48,7 @@ struct aesd_circular_buffer
     /**
      * set to true when the buffer entry structure is full
      */
+    size_t total_size;
     bool full;
 };
 

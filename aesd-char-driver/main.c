@@ -130,7 +130,6 @@ loff_t aesd_llseek(struct file *filp, loff_t offset, int whence) {
 long aesd_adjust_file_offset(struct file *filp, unsigned int cmd, unsigned int offset) {
     struct aesd_dev *dev = filp->private_data;
     int proposed_cmd = (dev->buffer.out_offs + cmd) % AESDCHAR_MAX_WRITE_OPERATIONS_SUPPORTED;
-    int retval = 0;
     int new_fpos = 0;
     PDEBUG("cmd: %d offset: %d", cmd, offset);
     PDEBUG("current buffer: %d proposed buffer: %d", dev->buffer.out_offs, proposed_cmd);
@@ -151,8 +150,7 @@ long aesd_adjust_file_offset(struct file *filp, unsigned int cmd, unsigned int o
         }
         new_fpos += offset;
     }
-    filp->f_pos = new_fpos;
-    return retval;
+    return new_fpos;
 }
 long aesd_ioctl(struct file *filp, unsigned int cmd, unsigned long arg) {
     long retval = 0;
@@ -165,6 +163,7 @@ long aesd_ioctl(struct file *filp, unsigned int cmd, unsigned long arg) {
             }
             else {
                 retval = aesd_adjust_file_offset(filp,seekto.write_cmd, seekto.write_cmd_offset);
+                filp->f_pos = retval;
             }
             break;
         default:

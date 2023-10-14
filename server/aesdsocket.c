@@ -16,7 +16,15 @@
 
 #define PORT "9000"
 #define BACKLOG 10
-#define FILE_NAME "/var/tmp/aesdsocketdata"
+#define USE_AESD_CHAR_DEVICE 1
+
+#if USE_AESD_CHAR_DEVICE
+     /* This one if debugging is on, and kernel space */
+#    define FILE_NAME "/dev/aesdchar"
+#else
+     /* This one for user space */
+#    define FILE_NAME "/var/tmp/aesdsocketdata"
+#endif
 
 bool caught_sigint = false;
 bool caught_sigterm = false;
@@ -42,6 +50,7 @@ static void signal_handler(int signal_number) {
     }
 }
 
+#if (USE_AESD_CHAR_DEVICE == 0)
 static void timer_thread (union sigval sigval) {
     char time_string[1024];
     int rc;
@@ -70,7 +79,8 @@ static void timer_thread (union sigval sigval) {
         }
     }
 }
-
+#endif
+#if (USE_AESD_CHAR_DEVICE == 0)
 static bool setup_timer( int clock_id,
                          timer_t timerid, unsigned int timer_period,
                          struct timespec *start_time)
@@ -97,7 +107,7 @@ static bool setup_timer( int clock_id,
     }
     return success;
 }
-
+#endif
 void* read_write_thread(void* thread_param) {
     int buf_size = 1024;
     char *buf = malloc(buf_size * sizeof(char));
@@ -174,11 +184,13 @@ int send_and_receive(void) {
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_PASSIVE;
 
+#if (USE_AESD_CHAR_DEVICE == 0)
     timer_t timerid;
     struct sigevent sev;
     memset(&sev,0,sizeof(struct sigevent));
     sev.sigev_notify = SIGEV_THREAD;
     sev.sigev_notify_function = timer_thread;
+#endif 
     int yes=1;
 
     getaddrinfo(NULL, PORT, &hints, &res);
@@ -215,7 +227,7 @@ int send_and_receive(void) {
     }
     
     freeaddrinfo(res);
-
+#if (USE_AESD_CHAR_DEVICE == 0)
     int clock_id = CLOCK_MONOTONIC;
     if ( timer_create(clock_id,&sev,&timerid) != 0 ) {
         syslog(LOG_ERR, "Error %d (%s) creating timer!\n",errno,strerror(errno));
@@ -226,6 +238,7 @@ int send_and_receive(void) {
         if ( setup_timer(clock_id, timerid, timer_period, &start_time) ) {
         }
     }
+#endif
     do {
         if (listen(sockfd, BACKLOG) == -1) {
             err_val = errno;
@@ -289,11 +302,13 @@ int send_and_receive(void) {
         new_node = NULL;
     }
     SLIST_INIT(&head);
+#if (USE_AESD_CHAR_DEVICE == 0)
     if(timer_delete(timerid) != 0) {
         if (errno != EINTR) {
             syslog(LOG_ERR, "Error deleting timer: %s", strerror(err_val));
         }
     }
+#endif
     shutdown(sockfd, 2);
     return 0;
 }
